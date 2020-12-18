@@ -1,0 +1,24 @@
+name: pdf_to_image
+description: A new Flutter project.
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  hooks_riverpod: any
+  flutter_hooks: any
+  native_pdf_renderer: any
+  flutter_dropzone: ^1.0.9
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
