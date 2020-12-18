@@ -26,7 +26,7 @@ class PdfToImage extends HookWidget {
   const PdfToImage();
   @override
   Widget build(BuildContext context) {
-    final file = useProvider(fileProvider.state);
+    final files = useProvider(fileProvider.state);
     return Scaffold(
       body: Stack(
         children: [
@@ -34,13 +34,28 @@ class PdfToImage extends HookWidget {
             onCreated: (c) => context.read(controllerProvider).state = c,
             onDrop: (d) => context.read(fileProvider).dropped(d),
           ),
-          Column(
-            children: [
-              Text('Name: ${file.name}'),
-              Text('Size: ${file.size}'),
-              Text('Mime: ${file.mime}'),
-            ],
-          ),
+          files == null
+              ? Center(child: Text('Drop Files Here'))
+              : Column(
+                  children: [
+                    for (final file in files)
+                      Row(
+                        children: [
+                          Expanded(child: Text('Name: ${file.name}')),
+                          Expanded(
+                            child: Text('Size: ${file.size}'),
+                          ),
+                          Expanded(
+                            child: Text('Mime: ${file.mime}'),
+                          ),
+                        ],
+                      ),
+                    SizedBox(height: 50),
+                    RaisedButton(
+                        onPressed: () => context.read(fileProvider).convert(),
+                        child: Text('Convert'))
+                  ],
+                ),
         ],
       ),
     );
@@ -51,7 +66,7 @@ final fileProvider =
     StateNotifierProvider<FileStateNotifier>((r) => FileStateNotifier(r.read));
 final controllerProvider = StateProvider<DropzoneViewController>((_) => null);
 
-class FileStateNotifier extends StateNotifier<FileData> {
+class FileStateNotifier extends StateNotifier<List<FileData>> {
   FileStateNotifier(this.read) : super(null);
   final Reader read;
   DropzoneViewController get controller => read(controllerProvider).state;
@@ -62,8 +77,11 @@ class FileStateNotifier extends StateNotifier<FileData> {
       await controller.getFileMIME(d),
       await controller.getFileData(d),
     );
-    state = f;
+    print(f);
+    state = [...?state, f];
   }
+
+  void convert() {}
 }
 
 class FileData {
