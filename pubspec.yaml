@@ -15,6 +15,7 @@ dependencies:
   flutter_hooks: any
   native_pdf_renderer: any
   flutter_dropzone: ^1.0.9
+  archive: ^2.0.13
 
 dev_dependencies:
   flutter_test:

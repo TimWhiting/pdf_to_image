@@ -1,9 +1,13 @@
+import 'dart:convert';
+import 'dart:html';
 import 'dart:typed_data';
+import 'package:archive/archive.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'package:hooks_riverpod/all.dart';
+import 'package:native_pdf_renderer/native_pdf_renderer.dart';
 
 void main() {
   runApp(ProviderScope(child: MyApp()));
@@ -81,7 +85,23 @@ class FileStateNotifier extends StateNotifier<List<FileData>> {
     state = [...?state, f];
   }
 
-  void convert() {}
+  Future<void> convert() async {
+    final archive = Archive();
+    for (final pdfImg in state) {
+      final data = await PdfDocument.openData(pdfImg.data);
+      final page = await data.getPage(1);
+      final rendered = await page.render(
+          width: page.width, height: page.height, format: PdfPageFormat.PNG);
+      final image = rendered.bytes;
+      final name = pdfImg.name.replaceAll('.pdf', '.png');
+      archive.addFile(ArchiveFile(name, image.length, image));
+    }
+    AnchorElement(
+        href:
+            "data:application/zip;base64,${base64.encode(ZipEncoder().encode(archive))}")
+      ..setAttribute("download", 'images')
+      ..click();
+  }
 }
 
 class FileData {
